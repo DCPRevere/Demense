@@ -1,5 +1,16 @@
-(ns demense.repository)
+(ns demense.repository
+  (:require [demense.domain :as dom]
+            [demense.eventstore :as evst]))
 
-(defn get-by-id [id] nil)
+(defprotocol Repository
+  (get-by-id [this id])
+  (save [this agg]))
 
-(defn save [agg] nil)
+(defrecord EventStoreRepo
+    []
+  Repository
+  (get-by-id [this id]
+    (dom/load-from-history (evst/get-events id)))
+
+  (save [this agg]
+    (evst/save-events (:item/events agg))))

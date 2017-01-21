@@ -1,45 +1,63 @@
 (ns demense.handle
   (:require [demense.repository :as repo]
-            [demense.aggregate :as agg]))
+            [demense.domain :as dom]))
 
-(defmulti handle :event/type)
+(def r (repo/->EventStoreRepo))
 
-(defmethod handle :event/item-created
-  [event]
-  (let [{id :event/id
-         name :item/name} event]
-    (-> (agg/create id name)
-        repo/save)))
+(defprotocol Command
+  (handle [this]))
 
-(defmethod handle :event/item-deactivated
-  [event]
-  (let [{id :item/id} event
-        agg (repo/get-by-id id)]
-    (-> agg
-        agg/deactivate
-        repo/save)))
+(defrecord CreateInventoryItem
+    [id name]
+  Command
+  (handle [this]
+    (let [{:keys [id name]} this
+          agg (repo/get-by-id r id)]
+      (if (nil? agg)
+        (-> agg
+            (dom/create id name)
+            repo/save)))))
 
-(defmethod handle :event/items-removed
-  [event]
-  (let [{id :item/id} event
-        agg (repo/get-by-id id)]
-    (-> agg
-        (agg/remove :item/count)
-        repo/save)))
+(defrecord
+    DeactivateInventoryItem
+    [id]
+  Command
+  (handle [this]
+    (let [{:keys [id]} this
+          agg (repo/get-by-id r id)]
+      (-> agg
+          dom/deactivate
+          repo/save))))
 
-(defmethod handle :event/items-checked-in
-  [event]
-  (let [{id :item/id} event
-        agg (repo/get-by-id id)]
-    (-> agg
-        (agg/check-in :item/count)
-        repo/save)))
+(defrecord
+    RemoveItemsFromInventory
+    [id count]
+  Command
+  (handle [this]
+    (let [{:keys [id count]} this
+          agg (repo/get-by-id r id)]
+      (-> agg
+          (dom/remove count)
+          repo/save))))
 
-(defmethod handle :event/item-renamed
-  [event]
-  (let [{id :item/id
-         name :item/name} event
-        agg (repo/get-by-id id)]
-    (-> agg
-        (agg/rename name)
-        repo/save)))
+(defrecord
+    CheckInItemsToInventory
+    [id count]
+  Command
+  (handle [this]
+    (let [{:keys [id count]} this
+          agg (repo/get-by-id r id)]
+      (-> agg
+          (dom/check-in count)
+          repo/save))))
+
+(defrecord
+    RenameInventoryItem
+    [id name]
+  Command
+  (handle [this]
+    (let [{:keys [id name]} this
+          agg (repo/get-by-id r id)]
+      (-> agg
+          (dom/rename name)
+          repo/save))))
