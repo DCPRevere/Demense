@@ -41,7 +41,11 @@
       (append-event event)
       (apply-event event)))
 
-(defn change-name
+(defn create
+  [agg id name]
+  (raise agg (ev/->InventoryItemCreated id name)))
+
+(defn rename
   [agg name]
   (let [{:keys [:item/id]} agg]
     (if (empty? name)

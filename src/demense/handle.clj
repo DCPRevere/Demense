@@ -4,6 +4,12 @@
 
 (def r (repo/->EventStoreRepo))
 
+(defn get-by-id [id]
+  (partial repo/get-by-id r))
+
+(defn save [agg]
+  (partial repo/save r))
+
 (defprotocol Command
   (handle [this]))
 
@@ -12,11 +18,11 @@
   Command
   (handle [this]
     (let [{:keys [id name]} this
-          agg (repo/get-by-id r id)]
+          agg (get-by-id id)]
       (if (nil? agg)
         (-> agg
             (dom/create id name)
-            repo/save)))))
+            save)))))
 
 (defrecord
     DeactivateInventoryItem
@@ -24,10 +30,10 @@
   Command
   (handle [this]
     (let [{:keys [id]} this
-          agg (repo/get-by-id r id)]
+          agg (get-by-id id)]
       (-> agg
           dom/deactivate
-          repo/save))))
+          save))))
 
 (defrecord
     RemoveItemsFromInventory
@@ -35,10 +41,10 @@
   Command
   (handle [this]
     (let [{:keys [id count]} this
-          agg (repo/get-by-id r id)]
+          agg (get-by-id id)]
       (-> agg
           (dom/remove count)
-          repo/save))))
+          save))))
 
 (defrecord
     CheckInItemsToInventory
@@ -46,10 +52,10 @@
   Command
   (handle [this]
     (let [{:keys [id count]} this
-          agg (repo/get-by-id r id)]
+          agg (get-by-id id)]
       (-> agg
           (dom/check-in count)
-          repo/save))))
+          save))))
 
 (defrecord
     RenameInventoryItem
@@ -57,7 +63,7 @@
   Command
   (handle [this]
     (let [{:keys [id name]} this
-          agg (repo/get-by-id r id)]
+          agg (get-by-id id)]
       (-> agg
           (dom/rename name)
-          repo/save))))
+          save))))
