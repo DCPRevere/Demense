@@ -9,7 +9,11 @@
                  [ring/ring-jetty-adapter "1.5.1"]
                  [org.clojure.gaverhae/okku "0.1.5"]
                  [com.geteventstore/eventstore-client_2.11 "3.0.5"]
-                 [org.clojure/tools.logging "0.3.1"]]
+                 [org.clojure/tools.logging "0.3.1"]
+                 [clj-uuid "1.0.0"]
+                 [cheshire "5.7.0"]
+                 [org.clojure/test.check "0.9.0"]
+                 [org.clojure/test.check "0.9.0"]]
   :main ^:skip-aot demense.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})

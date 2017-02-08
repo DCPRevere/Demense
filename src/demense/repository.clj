@@ -31,5 +31,6 @@
     (dom/load-from-history (evst/get-events id)))
 
   (save [this agg]
-    (evst/save-events (:item/events agg)
-                      )))
+    (let [{:keys [:item/id :item/changes]} agg]
+      (evst/save-events id changes -1))
+    agg))

@@ -10,3 +10,6 @@ pom.xml.asc
 .hgignore
 .hg/
 NOTES.org
+GPATH
+GRTAGS
+GTAGS

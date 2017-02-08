@@ -1,7 +1,7 @@
 (ns demense.core
-  (:gen-class))
+  (:gen-class)
+  (:require [demense.rest :as rest]))
 
 (defn -main
-  "I don't do a whole lot ... yet."
   [& args]
-  (println "Hello, World!"))
+  (rest/start))

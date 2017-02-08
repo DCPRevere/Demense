@@ -2,13 +2,15 @@
   (:require [demense.repository :as repo]
             [demense.domain :as dom]))
 
+;; TODO: correlation and causation ids!
+
 (def r (repo/->EventStoreRepo))
 
 (defn get-by-id [id]
-  (partial repo/get-by-id r))
+  (repo/get-by-id r id))
 
 (defn save [agg]
-  (partial repo/save r))
+  (repo/save r agg))
 
 (defprotocol Command
   (handle [this]))
@@ -22,7 +24,8 @@
       (if (nil? agg)
         (-> agg
             (dom/create id name)
-            save)))))
+            save)
+        agg))))
 
 (defrecord
     DeactivateInventoryItem
@@ -67,3 +70,4 @@
       (-> agg
           (dom/rename name)
           save))))
+
