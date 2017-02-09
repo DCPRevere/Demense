@@ -50,8 +50,3 @@
   (s/keys :req [:demense.item/id
                 :demense.item/activated?]
           :opt [:demense.item/changes]))
-
-#_(s/valid? :demense.event/event
-            {:demense.event/type :demense.event.type/item-created
-             :demense.item/id 3
-             :demense.item/name "coffee"})

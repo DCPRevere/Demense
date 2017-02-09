@@ -69,8 +69,3 @@
         :ret :demense.item/item)
 
 (s.t/check `dom/load-from-history)
-
-(dom/load-from-history
- (g/generate
-  (s/gen (s/cat :create :demense.event.type/item-created
-                :others (s/* :demense.event/event)))))

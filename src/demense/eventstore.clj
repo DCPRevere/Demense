@@ -13,18 +13,20 @@
                   :event/version (+ 1 exp-version idx)})
                events))
 
+(defn update-current
+  [current id events exp-version]
+  (let [event-descs (get current id)
+        version (:event/version (last event-descs))]
+    (if (or (= -1 exp-version)
+            (= version exp-version)
+            (and (nil? version) (= 0 exp-version)))
+      (update current id
+              concat (->descriptors id events exp-version))
+      (throw (Exception. "Concurrency exception.")))))
+
 (defn save-events
   [id events exp-version]
-  (swap! current
-         (fn [current]
-           (let [event-descs (get current id)
-                 version (:event/version (last event-descs))]
-             (if (or (= -1 exp-version)
-                     (= version exp-version)
-                     (and (nil? version) (= 0 exp-version)))
-               (update current id
-                       concat (->descriptors id events exp-version))
-               (throw (Exception. "Concurrency exception.")))))))
+  (swap! current #(update-current % id events exp-version)))
 
 (defn get-events
   [id]
