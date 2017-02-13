@@ -2,18 +2,14 @@
   (:require [clojure.spec :as s]
             [clojure.spec.gen :as g]))
 
-(s/def ::id pos-int?)
+(s/def ::id int?)
 
 (s/def :demense.item/id ::id)
 (s/def :demense.item/name (s/and string? seq))
 (s/def :demense.item/count pos-int?)
 (s/def :demense.item/activated? boolean?)
 
-(s/def :demense.event/type #{:demense.event.type/item-created
-                             :demense.event.type/item-deactivated
-                             :demense.event.type/item-renamed
-                             :demense.event.type/items-checked-in
-                             :demense.event.type/items-removed})
+(s/def :demense.event/type keyword?)
 
 (defmulti event-type :demense.event/type)
 
@@ -50,3 +46,27 @@
   (s/keys :req [:demense.item/id
                 :demense.item/activated?]
           :opt [:demense.item/changes]))
+
+(defmulti command-type :demense.event/type)
+
+(defmethod command-type
+  :demense.event.type/create-item [_]
+  (s/keys :req [:demense.event/type :demense.item/id :demense.item/name]))
+
+(defmethod command-type
+  :demense.event.type/deactivate-item [_]
+  (s/keys :req [:demense.event/type :demense.item/id]))
+
+(defmethod command-type
+  :demense.event.type/remove-items [_]
+  (s/keys :req [:demense.event/type :demense.item/id :demense.item/count]))
+
+(defmethod command-type
+  :demense.event.type/check-in-items [_]
+  (s/keys :req [:demense.event/type :demense.item/id :demense.item/count]))
+
+(defmethod command-type
+  :demense.event.type/rename-item [_]
+  (s/keys :req [:demense.event/type :demense.item/id :demense.item/name]))
+
+(s/def :demense.event/command (s/multi-spec command-type :demense.event/type))
