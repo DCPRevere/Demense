@@ -5,71 +5,50 @@
 ;; TODO: correlation and causation ids!
 ;; TODO: use maps instead of records for commands
 ;; Neither multimethods nor protocol functions can be spec'd.
+;; TODO: seperate pure and io parts of the handler
 
-(def r (repo/->EventStoreRepo))
+(defmulti handle-pure
+  (fn [agg command]
+    (:demense.event/type command)))
 
-(defn get-by-id [id]
-  (repo/get-by-id r id))
+(defmethod handle-pure
+  :demense.event.type/create-item
+  [agg command]
+  (let [{:keys [:demense.item/id :demense.item/name]}]
+    (if (nil? agg)
+      (dom/create agg id name))))
 
-(defn save [agg]
-  (repo/save r agg))
+(defmethod handle-pure
+  :demense.event.type/deactivate-item
+  [agg command]
+  (dom/deactivate agg))
 
-(defprotocol Command
-  (handle [this]))
+(defmethod handle-pure
+  :demense.event.type/remove-items
+  [agg command]
+  (let [{:keys [:demense.item/count]}]
+    (dom/remove agg count)))
 
-(defrecord CreateInventoryItem
-    [id name]
-  Command
-  (handle [this]
-    (let [{:keys [id name]} this
-          agg (get-by-id id)]
-      (if (nil? agg)
-        (-> agg
-            (dom/create id name)
-            save)
-        agg))))
+(defmethod handle-pure
+  :demense.event.type/check-in-items
+  [agg command]
+  (let [{:keys [:demense.item/count]}]
+    (dom/check-in agg count)))
 
-(defrecord
-    DeactivateInventoryItem
-    [id]
-  Command
-  (handle [this]
-    (let [{:keys [id]} this
-          agg (get-by-id id)]
-      (-> agg
-          dom/deactivate
-          save))))
+(defmethod handle-pure
+  :demense.event.type/rename-item
+  [agg command]
+  (let [{:keys [:demense.item/name]}]
+    (dom/rename agg name)))
 
-(defrecord
-    RemoveItemsFromInventory
-    [id count]
-  Command
-  (handle [this]
-    (let [{:keys [id count]} this
-          agg (get-by-id id)]
-      (-> agg
-          (dom/remove count)
-          save))))
+(defn handle-io
+  [handle-pure command]
+  (let [{:keys [:demense.item/id]}
+        agg (get-by-id id)])
+  (-> agg
+      (handle-pure agg command)
+      save))
 
-(defrecord
-    CheckInItemsToInventory
-    [id count]
-  Command
-  (handle [this]
-    (let [{:keys [id count]} this
-          agg (get-by-id id)]
-      (-> agg
-          (dom/check-in count)
-          save))))
-
-(defrecord
-    RenameInventoryItem
-    [id name]
-  Command
-  (handle [this]
-    (let [{:keys [id name]} this
-          agg (get-by-id id)]
-      (-> agg
-          (dom/rename name)
-          save))))
-
+(defn handle
+  [command]
+  (handle-io handle-pure command))
