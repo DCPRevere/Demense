@@ -1,17 +1,16 @@
 (ns demense.domain-test
   (:require [demense.domain :as sut]
             [clojure.test :as t]
-            [clojure.spec :as s]))
-
-;; Perhaps I should create a function that allows easier creation of
-;; events and aggregates.
+            [clojure.spec :as s]
+            [demense.test.utils :as utils]))
 
 (t/deftest apply-event
   (let [original {:demense.item/id 345
                   :demense.item/activated? false}
         created-event {:demense.event/type :demense.event.type/item-created
-               :demense.item/id 556}
-        deactivated-event {:demense.event/type :demense.event.type/item-deactivated}
+                       :demense.item/id 556}
+        deactivated-event {:demense.event/type
+                           :demense.event.type/item-deactivated}
         irrelevant-event {:demense.event/type :demense.event.type/foo}
         created {:demense.item/id 556
                  :demense.item/activated? true}
@@ -31,4 +30,15 @@
                original)))))
 
 (t/deftest append-event
-  (t/testing "Aggregate with no changes has a change appended."))
+  (let [event (utils/gen-event :demense.event.type/test 3 "coffee" nil)
+        another-event (utils/gen-event :demense.event.type/test 5 "milk" nil)
+        no-changes (utils/gen-item 345 true)
+        with-changes (assoc no-changes :demense.item/changes [event])
+        with-more-changes
+        (assoc no-changes :demense.item/changes [event another-event])]
+    (t/testing "Aggregate with no changes has a change appended."
+      (t/is (= (sut/append-event no-changes event)
+               with-changes)))
+    (t/testing "Multiple events are added to the end of the list of changes"
+      (t/is (= (sut/append-event with-changes another-event)
+               with-more-changes)))))

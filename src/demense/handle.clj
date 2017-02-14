@@ -14,9 +14,11 @@
 (defmethod handle-pure
   :demense.event.type/create-item
   [agg command]
-  (let [{:keys [:demense.item/id :demense.item/name]}]
+  (let [{:keys [:demense.item/id
+                :demense.item/name]} command]
     (if (nil? agg)
-      (dom/create agg id name))))
+      (dom/create agg id name)
+      agg)))
 
 (defmethod handle-pure
   :demense.event.type/deactivate-item
@@ -26,28 +28,28 @@
 (defmethod handle-pure
   :demense.event.type/remove-items
   [agg command]
-  (let [{:keys [:demense.item/count]}]
+  (let [{:keys [:demense.item/count]} command]
     (dom/remove agg count)))
 
 (defmethod handle-pure
   :demense.event.type/check-in-items
   [agg command]
-  (let [{:keys [:demense.item/count]}]
+  (let [{:keys [:demense.item/count]} command]
     (dom/check-in agg count)))
 
 (defmethod handle-pure
   :demense.event.type/rename-item
   [agg command]
-  (let [{:keys [:demense.item/name]}]
+  (let [{:keys [:demense.item/name]} command]
     (dom/rename agg name)))
 
 (defn handle-io
   [handle-pure command]
-  (let [{:keys [:demense.item/id]}
-        agg (get-by-id id)])
-  (-> agg
-      (handle-pure agg command)
-      save))
+  (let [{:keys [:demense.item/id]} command
+        agg (get-by-id id)]
+    (-> agg
+        (handle-pure command)
+        save)))
 
 (defn handle
   [command]
