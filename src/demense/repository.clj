@@ -3,17 +3,14 @@
             [demense.eventstore :as evst]
             [clojure.string :as str]))
 
-(defprotocol Repository
-  (get-by-id [this id])
-  (save [this agg]))
-
 (def stream-prefix "item-")
 
 (defn remove-prefix
   "Removes prefix if possible, returns the original string if not."
-  [str prefix]
-  (str/replace
-   str (re-pattern (str "^" prefix)) ""))
+  [string prefix]
+  (str/replace string (re-pattern (str "^" prefix)) ""))
+
+(remove-prefix "foo-bar" "foo-")
 
 (defn s->a [s-id]
   (let [id (remove-prefix s-id stream-prefix)]
@@ -24,13 +21,12 @@
 (defn a->s [id]
   (str stream-prefix id))
 
-(defrecord EventStoreRepo
-    []
-  Repository
-  (get-by-id [this id]
-    (dom/load-from-history (evst/get-events id)))
+(defn get-by-id
+  [this id]
+  (dom/load-from-history (evst/get-events id)))
 
-  (save [this agg]
-    (let [{:keys [:item/id :item/changes]} agg]
-      (evst/save-events id changes -1))
-    agg))
+(defn save
+  [this agg]
+  (let [{:keys [:item/id :item/changes]} agg]
+    (evst/save-events id changes -1))
+  agg)
