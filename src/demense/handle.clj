@@ -46,10 +46,10 @@
 (defn handle-io
   [handle-pure command]
   (let [{:keys [:demense.item/id]} command
-        agg (get-by-id id)]
+        agg (repo/get-by-id id)]
     (-> agg
-        (handle-pure command)
-        save)))
+        (io! (handle-pure command))
+        repo/save)))
 
 (defn handle
   [command]
