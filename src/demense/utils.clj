@@ -1,4 +1,4 @@
-(ns demense.test.utils
+(ns demense.utils
   (:require  [clojure.test :as t]))
 
 (defn gen-item [id activated?]

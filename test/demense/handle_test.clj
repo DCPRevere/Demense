@@ -1,7 +1,7 @@
 (ns demense.handle-test
   (:require [demense.handle :as sut]
             [clojure.test :as t]
-            [demense.test.utils :as utils]))
+            [demense.utils :as utils]))
 
 ;; Won't testing the handler just replicate any test we perform
 ;; on the domain?

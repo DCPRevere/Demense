@@ -2,7 +2,7 @@
   (:require [demense.domain :as sut]
             [clojure.test :as t]
             [clojure.spec :as s]
-            [demense.test.utils :as utils]))
+            [demense.utils :as utils]))
 
 (t/deftest apply-event
   (let [original {:demense.item/id 345
