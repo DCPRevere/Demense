@@ -11,23 +11,36 @@
                      wrap-json-response]]
             [demense.repository :as repo]))
 
-;; (def r (repo/->EventStoreRepo))
+;; TODO: render an aggregate as a string.
+;; TODO: helper functions for creating maps
+;; TODO: ensure that handle is returning the aggregate.
 
 (defroutes bare-handler
-  ;; (GET "/search/:id" [id]
-  ;;      (response (str "You asked for: " id))) ;; (:item/activated? (repo/get-by-id r id))))
-  ;; (GET "/search/:id" [id]
-  ;;      (response (repo/get-by-id r id)))
-  ;; (GET "/create/:id" [id name]
-  ;;      (response (h/handle (h/->CreateInventoryItem id name))))
-  ;; (GET "/deactivate/:id" [id]
-  ;;      (response (h/handle (h/->DeactivateInventoryItem id))))
-  ;; (GET "/remove/:id" [id count]
-  ;;      (response (h/handle (h/->RemoveItemsFromInventory id count))))
-  ;; (GET "/checkin/:id" [id count]
-  ;;      (response (h/handle (h/->CheckInItemsToInventory id count))))
-  ;; (GET "/rename/:id" [id name]
-  ;;      (response (h/handle (h/->RenameInventoryItem id name))))
+  (GET "/search/:id" [id] (response (repo/get-by-id id)))
+  (GET "/create/:id" [id name]
+       (response (h/handle
+                  {:demense.event/type :demense.event.type/create-item
+                   :demense.item/id id
+                   :demense.item/name name})))
+  (GET "/deactivate/:id" [id]
+       (response (h/handle
+                  {:demense.event/type :demense.event.type/deactivate-item
+                   :demense.item/id id})))
+  (GET "/remove/:id" [id count]
+       (response (h/handle
+                  {:demense.event/type :demense.event.type/remove-items
+                   :demense.item/id id
+                   :demense.item/count count})))
+  (GET "/check-in/:id" [id count]
+       (response (h/handle
+                  {:demense.event/type :demense.event.type/check-in-items
+                   :demense.item/id id
+                   :demense.item/count count})))
+  (GET "/rename/:id" [id name]
+       (response (h/handle
+                  {:demense.event/type :demense.event.type/rename-item
+                   :demense.item/id id
+                   :demense.item/name name})))
   )
 
 (def handler
