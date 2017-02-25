@@ -3,9 +3,7 @@
             [demense.domain :as dom]))
 
 ;; TODO: correlation and causation ids!
-;; TODO: use maps instead of records for commands
 ;; Neither multimethods nor protocol functions can be spec'd.
-;; TODO: seperate pure and io parts of the handler
 
 (defmulti handle-pure
   (fn [agg command]

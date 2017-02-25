@@ -17,7 +17,10 @@
 (s/fdef dom/raise
         :args (s/cat :agg :demense.item/item
                      :event :demense.event/event)
-        :ret :demense.item/item)
+        :ret :demense.item/item
+        ;; the raising of an event should not change the id of the aggregate.
+        ;; the testing of actualy apending theevent should hapen in a test of the application, not the test of the raising.
+        )
 
 (s.t/check `dom/raise)
 

@@ -29,6 +29,7 @@
       (t/is (= (sut/apply-event original irrelevant-event)
                original)))))
 
+;; This could just be specd. There is no need for this to be unit tested as well.
 (t/deftest append-event
   (let [event (utils/gen-event :demense.event.type/test 3 "coffee" nil)
         another-event (utils/gen-event :demense.event.type/test 5 "milk" nil)
