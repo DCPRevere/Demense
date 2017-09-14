@@ -1,5 +1,5 @@
 (ns demense.repository
-  (:require [demense.domain :as dom]
+  (:require [demense.item :as item]
             [demense.eventstore :as evst]
             [clojure.string :as str]))
 
@@ -12,21 +12,25 @@
 
 (remove-prefix "foo-bar" "foo-")
 
-(defn s->a [s-id]
-  (let [id (remove-prefix s-id stream-prefix)]
-    (if (= id s-id)
+(defn s->a
+  "Converts a stream id into an aggregate id."
+  [stream-id]
+  (let [id (remove-prefix stream-id stream-prefix)]
+    (if (= id stream-id)
       (throw (Exception. "Invalid stream id."))
       id)))
 
-(defn a->s [id]
+(defn a->s
+  "Converts a aggregate id into an stream id."
+  [id]
   (str stream-prefix id))
 
 (defn get-by-id
-  [this id]
-  (dom/load-from-history (evst/get-events id)))
+  [id]
+  (item/load-from-history (evst/get-events id)))
 
 (defn save
-  [this agg]
-  (let [{:keys [:item/id :item/changes]} agg]
+  [item]
+  (let [{:keys [:demense.item/id :demense.event/changes]} item]
     (evst/save-events id changes -1))
-  agg)
+  item)

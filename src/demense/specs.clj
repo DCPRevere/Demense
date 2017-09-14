@@ -7,7 +7,7 @@
 (s/def :demense.item/id ::id)
 (s/def :demense.item/name (s/and string? seq))
 (s/def :demense.item/count pos-int?)
-(s/def :demense.item/activated? boolean?)
+(s/def :demense.item/active? boolean?)
 
 (s/def :demense.event/type keyword?)
 
@@ -44,7 +44,7 @@
 
 (s/def :demense.item/item
   (s/keys :req [:demense.item/id
-                :demense.item/activated?]
+                :demense.item/active?]
           :opt [:demense.item/changes]))
 
 (defmulti command-type :demense.event/type)

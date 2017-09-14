@@ -1,54 +1,50 @@
 (ns demense.handle
   (:require [demense.repository :as repo]
-            [demense.domain :as dom]))
+            [demense.item :as item]))
 
 ;; TODO: correlation and causation ids!
 ;; Neither multimethods nor protocol functions can be spec'd.
 
 (defmulti handle-pure
-  (fn [agg command]
+  (fn [_ command]
     (:demense.event/type command)))
 
 (defmethod handle-pure
   :demense.event.type/create-item
-  [agg command]
+  [item command]
   (let [{:keys [:demense.item/id
                 :demense.item/name]} command]
-    (if (nil? agg)
-      (dom/create agg id name)
-      agg)))
+    (if (nil? item)
+      (item/create item id name)
+      item)))
 
 (defmethod handle-pure
   :demense.event.type/deactivate-item
-  [agg command]
-  (dom/deactivate agg))
+  [item command]
+  (item/deactivate item))
 
 (defmethod handle-pure
   :demense.event.type/remove-items
-  [agg command]
+  [item command]
   (let [{:keys [:demense.item/count]} command]
-    (dom/remove agg count)))
+    (item/remove item count)))
 
 (defmethod handle-pure
   :demense.event.type/check-in-items
-  [agg command]
+  [item command]
   (let [{:keys [:demense.item/count]} command]
-    (dom/check-in agg count)))
+    (item/check-in item count)))
 
 (defmethod handle-pure
   :demense.event.type/rename-item
-  [agg command]
+  [item command]
   (let [{:keys [:demense.item/name]} command]
-    (dom/rename agg name)))
-
-(defn handle-io
-  [handle-pure command]
-  (let [{:keys [:demense.item/id]} command
-        agg (repo/get-by-id id)]
-    (-> agg
-        (io! (handle-pure command))
-        repo/save)))
+    (item/rename item name)))
 
 (defn handle
   [command]
-  (handle-io handle-pure command))
+  (let [{:keys [:demense.item/id]} command
+        item (repo/get-by-id id)]
+    (-> item
+        (handle-pure command)
+        repo/save)))

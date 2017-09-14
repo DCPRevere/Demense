@@ -31,14 +31,14 @@
         :ret :demense.item/item
         :fn (fn [{:keys [args ret]}]
               (and (= (:id args) (:demense.item/id ret))
-                   (:demense.item/activated? ret))))
+                   (:demense.item/active? ret))))
 
 (s.t/check `dom/create)
 
 (s/fdef dom/deactivate
         :args (s/cat :agg :demense.item/item)
         :ret :demense.item/item
-        :fn #(not (:demense.item/activated? (:ret %))))
+        :fn #(not (:demense.item/active? (:ret %))))
 
 (s.t/check `dom/create)
 
